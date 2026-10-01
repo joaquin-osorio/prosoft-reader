@@ -159,11 +159,16 @@ function App() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <AttendanceGrid attendance={attendance} />
-                  <p className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="inline-block size-3 rounded-sm bg-late" />
-                    Llegada tarde (después de las {settings.arrivalLimit}:59) · — sin registro
-                    ese día
-                  </p>
+                  <ul className="flex flex-col gap-1 text-xs text-muted-foreground">
+                    <li className="flex items-center gap-2">
+                      <span className="inline-block size-3 rounded-sm bg-late" />
+                      Llegada tarde
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="inline-block w-3 text-center">—</span>
+                      Día sin registro
+                    </li>
+                  </ul>
                 </CardContent>
               </Card>
             </>

@@ -21,13 +21,15 @@ export function AttendanceGrid({ attendance }: AttendanceGridProps) {
   const { days, people } = attendance
 
   return (
+    // Compact day columns (text-xs, px-1) so a full payroll period fits the
+    // card on desktop; the table wrapper still scrolls on narrow screens.
     <Table className="tabular-nums">
       <TableHeader>
         <TableRow className="hover:bg-transparent">
           <TableHead className="sticky left-0 z-10 bg-card">Persona</TableHead>
           {days.map((day) => (
-            <TableHead key={day} className="px-1.5 text-center leading-tight">
-              <span className="block text-xs font-normal text-muted-foreground">
+            <TableHead key={day} className="px-1 text-center text-xs leading-tight">
+              <span className="block font-normal text-muted-foreground">
                 {WEEKDAYS[getWeekday(day)]}
               </span>
               {formatShortDate(day).slice(0, 5)}
@@ -50,7 +52,7 @@ export function AttendanceGrid({ attendance }: AttendanceGridProps) {
                 return (
                   <TableCell
                     key={day}
-                    className="px-1.5 text-center text-muted-foreground/60"
+                    className="px-1 text-center text-xs text-muted-foreground/60"
                     title={`${person.name} · ${formatShortDate(day)} · sin registro`}
                   >
                     —
@@ -62,7 +64,7 @@ export function AttendanceGrid({ attendance }: AttendanceGridProps) {
                 <TableCell
                   key={day}
                   className={cn(
-                    'px-1.5 text-center',
+                    'px-1 text-center text-xs',
                     entry.late && 'bg-late font-medium text-late-foreground',
                   )}
                   title={`${person.name} · ${formatShortDate(day)} · ${time}${entry.late ? ' · tarde' : ''}`}
