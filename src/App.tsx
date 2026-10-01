@@ -144,8 +144,7 @@ function App() {
                   <SummaryTable people={attendance.people} maxLateDays={settings.maxLateDays} />
                   <p className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span className="inline-block size-3 rounded-sm bg-over-limit ring-1 ring-over-limit-foreground/30" />
-                    Más de {plural(settings.maxLateDays, 'llegada tarde', 'llegadas tarde')}: pierde
-                    el presentismo
+                    Pierde el presentismo
                   </p>
                 </CardContent>
               </Card>
