@@ -3,6 +3,7 @@ import { AlertTriangleIcon, UploadIcon } from 'lucide-react'
 import { ArrivalLimitInput } from '@/components/arrival-limit-input'
 import { AttendanceGrid } from '@/components/attendance-grid'
 import { DateRangePicker } from '@/components/date-range-picker'
+import { ExportButton } from '@/components/export-button'
 import { FileDropzone } from '@/components/file-dropzone'
 import { SummaryTable } from '@/components/summary-table'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -41,12 +42,13 @@ function App() {
   const limitMinutes =
     parseHHMM(settings.arrivalLimit) ?? parseHHMM(DEFAULT_SETTINGS.arrivalLimit)!
 
+  const arrivalsInRange = useMemo(
+    () => (loaded && range ? filterByRange(loaded.arrivals, range) : null),
+    [loaded, range],
+  )
   const attendance = useMemo(
-    () =>
-      loaded && range
-        ? buildAttendance(filterByRange(loaded.arrivals, range), limitMinutes)
-        : null,
-    [loaded, range, limitMinutes],
+    () => (arrivalsInRange ? buildAttendance(arrivalsInRange, limitMinutes) : null),
+    [arrivalsInRange, limitMinutes],
   )
 
   const handleFile = async (file: File) => {
@@ -86,7 +88,7 @@ function App() {
         </Alert>
       )}
 
-      {!loaded || !range || !attendance ? (
+      {!loaded || !range || !arrivalsInRange || !attendance ? (
         <FileDropzone onFile={handleFile} />
       ) : (
         <>
@@ -109,6 +111,11 @@ function App() {
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <DateRangePicker value={range} bounds={loaded.fullRange} onChange={setRange} />
+              <ExportButton
+                arrivals={arrivalsInRange}
+                limitMinutes={limitMinutes}
+                range={range}
+              />
               <Button variant="outline" onClick={() => setLoaded(null)}>
                 <UploadIcon />
                 Cargar otro archivo
