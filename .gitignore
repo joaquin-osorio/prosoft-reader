@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files (keep example files with placeholder values)
+.env*
+!.env.example
+
+# Local sample data
+example_files/
