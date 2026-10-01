@@ -1,6 +1,12 @@
 # CLAUDE.md
 
-@AGENTS.md
+## Commands
+
+- `npm run dev` — Vite dev server. `npm run preview` — serve the production build locally.
+- `npm run build` — typecheck (`tsc -b`) and build to `dist/`.
+- `npm run lint` — ESLint.
+- Typecheck only: `npx tsc -b`.
+- Tests: no test runner is configured yet. When the first testable logic lands, set up Vitest (it reuses `vite.config.ts`) in that same milestone and add a `test` script.
 
 ## Language
 
@@ -13,7 +19,7 @@
 - Keep changes focused. Don't touch unrelated files, refactor unrelated code, or "clean up" surrounding code unless it's necessary for the task.
 - For significant architectural changes, project structure changes, or new patterns: explain the trade-offs in the plan and proceed. Only stop for approval if the change would be hard to undo.
 - Follow the project's existing conventions and config. Don't override or bypass lint/format/TypeScript/test rules just to make something pass — if a rule is genuinely a problem, explain why and ask before changing it.
-- Stop any dev/preview servers (e.g. `next dev`) started during a session before finishing — don't leave them running once the task is done.
+- Stop any dev/preview servers (`npm run dev`, `npm run preview`) started during a session before finishing — don't leave them running once the task is done.
 
 ## Planning and commits
 
@@ -22,9 +28,9 @@
 - Before each commit: run lint, typecheck, and the tests relevant to that milestone. If anything fails, fix it first. Never commit broken code and never skip hooks (`--no-verify`).
 - Tests and `/docs` updates belong in the same commit as the change they cover.
 - Stage with `git add .` so nothing is left unstaged. Because everything gets staged:
-  - Secrets always go in `.env*` files, and `.env*` must be in `.gitignore` (except example files like `.env.example`, which hold placeholder values only). Check this before committing.
+  - `.env*` must be in `.gitignore` (except example files like `.env.example`, which hold placeholder values only). Check this before committing.
   - Review `git status` before each commit. If an untracked file shouldn't live in the repo (build output, logs, local artifacts), add it to `.gitignore` instead of committing it.
-  - If a secret ever appears in the staged diff, stop, move it to `.env`, and don't commit until it's out.
+  - If a secret ever appears in the staged diff, stop, remove it, and don't commit until it's out.
 - If the plan changes mid-task (a milestone needs splitting, reordering, or dropping), update the plan and say so before continuing.
 - Use [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): description`.
   - Types: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `style`, `build`, `ci`, `chore`.
@@ -38,22 +44,16 @@
 
 - No giant files. A file pushing ~10k lines is treated as a mistake 9 times out of 10 — flag it and propose splitting it up.
 - Prefer the simplest solution that correctly solves the problem. No unnecessary abstractions, patterns, or architectural complexity.
-- Never hardcode secrets, API keys, credentials, or tokens. Always put them in a `.env` file and read them from environment variables.
+- Never put secrets, API keys, credentials, or tokens in client code — not even through env vars. This is a browser-only app: everything in `src/` ships to the user. Only `VITE_*` env vars are exposed (via `import.meta.env`) and they are inlined into the public bundle, so use them only for non-secret config (public URLs, feature flags). Anything that needs a secret belongs on a backend.
 
-## Next.js conventions
+## React + Vite conventions
 
-- App Router only — this project does not use the Pages Router.
-- Server Components by default. Use Client Components only when a feature genuinely needs client interactivity (state, effects, browser APIs, event handlers).
-- Push `"use client"` down to the smallest interactive leaf. Don't turn a page or layout into a Client Component just to host one interactive widget — pass server-rendered content in as `children` or props instead.
-- Keep a hard server/client boundary:
-  - Modules with server-only logic or secrets start with `import "server-only"` so an accidental client import fails at build time.
-  - Only `NEXT_PUBLIC_*` env vars reach the browser. Never give a secret that prefix.
-- Data flow:
-  - Fetch data in Server Components, not with client-side fetching or `useEffect` synchronization.
-  - Mutations go through Server Actions.
-  - Route Handlers are for things that genuinely need an HTTP endpoint (webhooks, external consumers, non-React clients) — not for feeding your own Server Components.
-- Server Actions are public HTTP endpoints. Validate input and check authentication/authorization inside every action; never trust that only your UI calls it.
-- Caching and revalidation: be explicit about what is cached and how it gets invalidated after a mutation. Use the mechanism the installed Next.js version prescribes (see the bundled docs referenced in `AGENTS.md`), not patterns from memory.
+- Client-side SPA: Vite + React + TypeScript, no server. All code in `src/` runs in the browser — no Node APIs there. `vite.config.ts` is the only Node-side file.
+- Import from `src` with the `@/` alias. It's declared in three configs that must stay in sync — see `docs/styling.md`.
+- Function components and hooks. Respect the `eslint-plugin-react-hooks` rules. Don't use `useEffect` to derive or sync state — compute it during render.
+- Component files export only components (`react-refresh/only-export-components`). The only exception is `src/components/ui/**`.
+- UI is shadcn/ui (`base-nova`, Base UI primitives) + Tailwind CSS v4. Add components with `npx shadcn@latest add <name>`; they land in `src/components/ui/`. App components live outside that folder. Styling conventions are in `docs/styling.md`.
+- No routing, data-fetching, or state-management library is installed yet. When one is needed, propose it with its trade-offs in the plan instead of hand-rolling ad hoc patterns.
 
 ## Documentation
 
