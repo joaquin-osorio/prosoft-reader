@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatShortDate, formatTimeOfDay, parseHHMM } from './time'
+import { formatShortDate, formatTimeOfDay, getWeekday, parseHHMM } from './time'
 
 describe('parseHHMM', () => {
   it('parses valid times', () => {
@@ -25,5 +25,12 @@ describe('formatTimeOfDay', () => {
 describe('formatShortDate', () => {
   it('formats ISO dates as dd/mm/yy', () => {
     expect(formatShortDate('2026-09-01')).toBe('01/09/26')
+  })
+})
+
+describe('getWeekday', () => {
+  it('returns the day of the week regardless of the local timezone', () => {
+    expect(getWeekday('2026-08-29')).toBe(6) // Saturday
+    expect(getWeekday('2026-08-31')).toBe(1) // Monday
   })
 })

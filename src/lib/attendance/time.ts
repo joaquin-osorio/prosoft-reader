@@ -21,3 +21,9 @@ export function formatShortDate(isoDate: string): string {
   const [year, month, day] = isoDate.split('-')
   return `${day}/${month}/${year.slice(2)}`
 }
+
+/** Day of the week of an ISO date (`YYYY-MM-DD`), 0 = Sunday. */
+export function getWeekday(isoDate: string): number {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, day)).getUTCDay()
+}

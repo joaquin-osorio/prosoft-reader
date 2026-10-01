@@ -21,4 +21,5 @@ No	Mchn	EnNo		Name			Mode	IOMd	DateTime
 
 - **Only the entry counts.** For each person and day, only the earliest punch is kept (`getFirstArrivals`), whatever its position in the file. Later punches that day (lunch, leaving, double taps) are discarded. `IOMd` is not used to tell entries from exits.
 - **Lateness** compares minutes only (`isLate`): late ⇔ `floor(seconds / 60) > limit`. With the default limit `09:10`, `09:10:59` is on time and `09:11:00` is late.
+- **Period days** are the dates with at least one punch from anyone (`buildAttendance`). A person with no punch on one of them shows "—" and counts as missing that day; days nobody punched (weekends, holidays) are not part of the period.
 - Weekends are not special: if someone punched on a Saturday, that day counts like any other.
