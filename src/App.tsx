@@ -71,7 +71,7 @@ function App() {
         <div>
           <h1 className="font-heading text-2xl font-semibold tracking-tight">Prosoft Reader</h1>
           <p className="text-sm text-muted-foreground">
-            Control de presentismo a partir de las marcas del reloj biométrico
+            Visualizador de datos
           </p>
         </div>
         <ArrivalLimitInput
@@ -106,8 +106,8 @@ function App() {
           <section className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
               <span className="font-medium text-foreground">{loaded.name}</span> ·{' '}
-              {plural(attendance.people.length, 'persona', 'personas')} ·{' '}
-              {plural(attendance.days.length, 'día con marcas', 'días con marcas')}
+              {plural(attendance.people.length, 'empleado', 'empleados')} ·{' '}
+              {plural(attendance.days.length, 'día con registros', 'días con registros')}
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <DateRangePicker value={range} bounds={loaded.fullRange} onChange={setRange} />
