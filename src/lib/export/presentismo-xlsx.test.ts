@@ -47,4 +47,10 @@ describe('getPresentismoFileName', () => {
       'Presentismo Septiembre 2026.xlsx',
     )
   })
+
+  it('uses the end month and year when the range crosses a year boundary', () => {
+    expect(getPresentismoFileName({ from: '2026-12-26', to: '2027-01-25' })).toBe(
+      'Presentismo Enero 2027.xlsx',
+    )
+  })
 })
