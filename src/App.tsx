@@ -5,6 +5,7 @@ import { AttendanceGrid } from '@/components/attendance-grid'
 import { DateRangePicker } from '@/components/date-range-picker'
 import { ExportButton } from '@/components/export-button'
 import { FileDropzone } from '@/components/file-dropzone'
+import { LateAllowanceInput } from '@/components/late-allowance-input'
 import { SummaryTable } from '@/components/summary-table'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -74,10 +75,16 @@ function App() {
             Visualizador de datos
           </p>
         </div>
-        <ArrivalLimitInput
-          value={settings.arrivalLimit}
-          onChange={(arrivalLimit) => updateSettings({ arrivalLimit })}
-        />
+        <div className="flex flex-wrap items-center gap-4">
+          <ArrivalLimitInput
+            value={settings.arrivalLimit}
+            onChange={(arrivalLimit) => updateSettings({ arrivalLimit })}
+          />
+          <LateAllowanceInput
+            value={settings.maxLateDays}
+            onChange={(maxLateDays) => updateSettings({ maxLateDays })}
+          />
+        </div>
       </header>
 
       {loadError && (
