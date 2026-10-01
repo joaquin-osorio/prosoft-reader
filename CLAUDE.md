@@ -6,7 +6,7 @@
 - `npm run build` — typecheck (`tsc -b`) and build to `dist/`.
 - `npm run lint` — ESLint.
 - Typecheck only: `npx tsc -b`.
-- Tests: no test runner is configured yet. When the first testable logic lands, set up Vitest (it reuses `vite.config.ts`) in that same milestone and add a `test` script.
+- Tests: `npm run test` (Vitest, reuses `vite.config.ts`). Run a subset with `npx vitest run <path>`. Tests live next to the code as `*.test.ts`.
 
 ## Language
 
