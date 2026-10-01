@@ -3,11 +3,11 @@ import { AlertTriangleIcon, UploadIcon } from 'lucide-react'
 import { ArrivalLimitInput } from '@/components/arrival-limit-input'
 import { AttendanceGrid } from '@/components/attendance-grid'
 import { FileDropzone } from '@/components/file-dropzone'
+import { SummaryTable } from '@/components/summary-table'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -87,20 +87,32 @@ function App() {
             </Alert>
           )}
 
+          <section className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">{loaded.name}</span> ·{' '}
+              {formatShortDate(attendance.days[0])} al{' '}
+              {formatShortDate(attendance.days[attendance.days.length - 1])} ·{' '}
+              {attendance.people.length} personas · {attendance.days.length} días
+            </p>
+            <Button variant="outline" onClick={() => setLoaded(null)}>
+              <UploadIcon />
+              Cargar otro archivo
+            </Button>
+          </section>
+
           <Card>
             <CardHeader>
-              <CardTitle>Asistencia</CardTitle>
-              <CardDescription>
-                {loaded.name} · {formatShortDate(attendance.days[0])} al{' '}
-                {formatShortDate(attendance.days[attendance.days.length - 1])} ·{' '}
-                {attendance.people.length} personas · {attendance.days.length} días
-              </CardDescription>
-              <CardAction>
-                <Button variant="outline" onClick={() => setLoaded(null)}>
-                  <UploadIcon />
-                  Cargar otro archivo
-                </Button>
-              </CardAction>
+              <CardTitle>Resumen por persona</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SummaryTable people={attendance.people} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Asistencia por día</CardTitle>
+              <CardDescription>Hora de entrada: la primera marca de cada persona en el día</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <AttendanceGrid attendance={attendance} />
