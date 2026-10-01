@@ -5,7 +5,9 @@
 - Loaded through the `@tailwindcss/vite` plugin (`vite.config.ts`). There is no `tailwind.config.*` or PostCSS config: v4 is configured CSS-first.
 - `src/index.css` is the single global stylesheet. It imports Tailwind, `tw-animate-css`, `shadcn/tailwind.css` and the Geist font, then defines the theme.
 - Theme tokens (`--background`, `--primary`, `--radius`, …) are CSS variables in `:root` / `.dark`, mapped to Tailwind utilities in the `@theme inline` block (e.g. `--color-primary` → `bg-primary`). Change colors there, not in components.
-- App-specific tokens: `--late` / `--late-foreground` (late-arrival highlight, `bg-late text-late-foreground`), with a dark variant.
+- App-specific tokens, each with a dark variant:
+  - `--late` / `--late-foreground`: late-arrival highlight (`bg-late text-late-foreground`).
+  - `--over-limit` / `--over-limit-foreground`: summary rows of people over the late allowance (light red background, dark red text; contrast ≈ 7:1 light, ≈ 10:1 dark). Don't put `text-muted-foreground` on top of it; it falls below a readable contrast.
 - Dark mode is class-based (`@custom-variant dark (&:is(.dark *))`): add the `dark` class to an ancestor (normally `<html>`). It does **not** follow `prefers-color-scheme` on its own; nothing toggles it yet.
 
 ## shadcn/ui
