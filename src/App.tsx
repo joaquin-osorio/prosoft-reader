@@ -174,6 +174,18 @@ function App() {
           )}
         </>
       )}
+
+      <footer className="mt-auto pt-4 text-center text-xs text-muted-foreground/60">
+        Made with ❤️ by{' '}
+        <a
+          href="https://github.com/joaquin-osorio"
+          target="_blank"
+          rel="noreferrer"
+          className="underline-offset-2 transition-colors hover:text-muted-foreground hover:underline"
+        >
+          Joaquin
+        </a>
+      </footer>
     </main>
   )
 }
