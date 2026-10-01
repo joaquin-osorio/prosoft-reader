@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { AlertTriangleIcon, UploadIcon } from 'lucide-react'
 import { ArrivalLimitInput } from '@/components/arrival-limit-input'
 import { AttendanceGrid } from '@/components/attendance-grid'
+import { DateRangePicker } from '@/components/date-range-picker'
 import { FileDropzone } from '@/components/file-dropzone'
 import { SummaryTable } from '@/components/summary-table'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -16,27 +17,36 @@ import {
 import { useSettings } from '@/hooks/use-settings'
 import { getFirstArrivals, type Arrival } from '@/lib/attendance/arrivals'
 import { decodeTxt, parseProsoftTxt } from '@/lib/attendance/parse'
+import { filterByRange, getFullRange, type DateRange } from '@/lib/attendance/range'
 import { buildAttendance } from '@/lib/attendance/summary'
-import { formatShortDate, parseHHMM } from '@/lib/attendance/time'
+import { parseHHMM } from '@/lib/attendance/time'
 import { DEFAULT_SETTINGS } from '@/lib/settings'
 
 interface LoadedFile {
   name: string
   arrivals: Arrival[]
   skippedLines: number
+  fullRange: DateRange
 }
+
+const plural = (count: number, one: string, many: string) =>
+  `${count} ${count === 1 ? one : many}`
 
 function App() {
   const [settings, updateSettings] = useSettings()
   const [loaded, setLoaded] = useState<LoadedFile | null>(null)
+  const [range, setRange] = useState<DateRange | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
 
   const limitMinutes =
     parseHHMM(settings.arrivalLimit) ?? parseHHMM(DEFAULT_SETTINGS.arrivalLimit)!
 
   const attendance = useMemo(
-    () => (loaded ? buildAttendance(loaded.arrivals, limitMinutes) : null),
-    [loaded, limitMinutes],
+    () =>
+      loaded && range
+        ? buildAttendance(filterByRange(loaded.arrivals, range), limitMinutes)
+        : null,
+    [loaded, range, limitMinutes],
   )
 
   const handleFile = async (file: File) => {
@@ -45,8 +55,12 @@ function App() {
       setLoadError(`No se encontraron marcas válidas en "${file.name}".`)
       return
     }
+    const arrivals = getFirstArrivals(punches)
+    const fullRange = getFullRange(arrivals)
     setLoadError(null)
-    setLoaded({ name: file.name, arrivals: getFirstArrivals(punches), skippedLines })
+    setLoaded({ name: file.name, arrivals, skippedLines, fullRange })
+    // A new file always starts with its whole period selected.
+    setRange(fullRange)
   }
 
   return (
@@ -72,7 +86,7 @@ function App() {
         </Alert>
       )}
 
-      {!loaded || !attendance ? (
+      {!loaded || !range || !attendance ? (
         <FileDropzone onFile={handleFile} />
       ) : (
         <>
@@ -80,8 +94,8 @@ function App() {
             <Alert>
               <AlertTriangleIcon />
               <AlertTitle>
-                Se ignoraron {loaded.skippedLines}{' '}
-                {loaded.skippedLines === 1 ? 'línea' : 'líneas'} con formato no reconocido
+                {loaded.skippedLines === 1 ? 'Se ignoró' : 'Se ignoraron'}{' '}
+                {plural(loaded.skippedLines, 'línea', 'líneas')} con formato no reconocido
               </AlertTitle>
               <AlertDescription>El resto del archivo se procesó normalmente.</AlertDescription>
             </Alert>
@@ -90,38 +104,51 @@ function App() {
           <section className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
               <span className="font-medium text-foreground">{loaded.name}</span> ·{' '}
-              {formatShortDate(attendance.days[0])} al{' '}
-              {formatShortDate(attendance.days[attendance.days.length - 1])} ·{' '}
-              {attendance.people.length} personas · {attendance.days.length} días
+              {plural(attendance.people.length, 'persona', 'personas')} ·{' '}
+              {plural(attendance.days.length, 'día con marcas', 'días con marcas')}
             </p>
-            <Button variant="outline" onClick={() => setLoaded(null)}>
-              <UploadIcon />
-              Cargar otro archivo
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <DateRangePicker value={range} bounds={loaded.fullRange} onChange={setRange} />
+              <Button variant="outline" onClick={() => setLoaded(null)}>
+                <UploadIcon />
+                Cargar otro archivo
+              </Button>
+            </div>
           </section>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Resumen por persona</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SummaryTable people={attendance.people} />
-            </CardContent>
-          </Card>
+          {attendance.days.length === 0 ? (
+            <p className="rounded-xl border border-dashed px-6 py-12 text-center text-sm text-muted-foreground">
+              No hay marcas en el rango seleccionado.
+            </p>
+          ) : (
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Resumen por persona</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SummaryTable people={attendance.people} />
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Asistencia por día</CardTitle>
-              <CardDescription>Hora de entrada: la primera marca de cada persona en el día</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <AttendanceGrid attendance={attendance} />
-              <p className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="inline-block size-3 rounded-sm bg-late" />
-                Llegada tarde (después de las {settings.arrivalLimit}:59) · — sin registro ese día
-              </p>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Asistencia por día</CardTitle>
+                  <CardDescription>
+                    Hora de entrada: la primera marca de cada persona en el día
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <AttendanceGrid attendance={attendance} />
+                  <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="inline-block size-3 rounded-sm bg-late" />
+                    Llegada tarde (después de las {settings.arrivalLimit}:59) · — sin registro
+                    ese día
+                  </p>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </>
       )}
     </main>
