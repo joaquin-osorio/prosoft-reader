@@ -17,8 +17,6 @@ Prosoft clocks export a plain tab-separated TXT file with every fingerprint punc
 
 It can then export the result as an **Excel report** in the same layout the office already uses.
 
-> The app's interface is in Spanish.
-
 ## Privacy first
 
 Attendance data is personal data, so Prosoft Reader has **no backend**. The file is read and processed locally in the browser and never leaves your machine. The only thing stored is your two settings (arrival limit and late allowance), saved in `localStorage`.
